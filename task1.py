@@ -25,60 +25,70 @@ class RuleBot:
     def greet(self):
         self.name = input("What is your name?\n")
         will_help = input(
-            f"Hi {self.name}, I am ShopBot. Can I assist you with your shopping today?\n")
-        if will_help.lower() in self.negative_res:
+            f"Hi {self.name}, I am ShopBot. Can I assist you with your shopping today?\n").lower()
+        if will_help in self.negative_res:
             print("Have a great day!")
             return
-        self.chat()
+        else:
+            self.chat()
 
     def make_exit(self, reply):
-        for command in self.exit_commands:
-            if reply == command:
-                print("Have a great shopping day!")
-                return True
+        if reply in self.exit_commands:
+            print("Have a great shopping day!")
+            return True
+        return False
 
     def chat(self):
-        reply = input(random.choice(self.random_question)).lower()
+        reply = input(random.choice(self.random_question) + "\n").lower()
         while not self.make_exit(reply):
-            reply = input(self.match_reply(reply))
+            reply = input(self.match_reply(reply) + "\n").lower()
 
     def match_reply(self, reply):
         for intent, regex_pattern in self.shopping_babble.items():
-            found_match = re.match(regex_pattern, reply)
-            if found_match and intent == 'product_inquiry_intent':
-                return self.product_inquiry_intent()
-            elif found_match and intent == 'deal_inquiry_intent':
-                return self.deal_inquiry_intent()
-            elif found_match and intent == 'payment_inquiry_intent':
-                return self.payment_inquiry_intent()
+            if re.search(regex_pattern, reply):  # Changed re.match to re.search for flexibility
+                if intent == 'product_inquiry_intent':
+                    return self.product_inquiry_intent()
+                elif intent == 'deal_inquiry_intent':
+                    return self.deal_inquiry_intent()
+                elif intent == 'payment_inquiry_intent':
+                    return self.payment_inquiry_intent()
 
-        if not found_match:
-            return self.no_match_intent()
+        return self.no_match_intent()  # No match found, use fallback response
 
     def product_inquiry_intent(self):
-        responses = ("We have a wide range of products including electronics, clothing, and home goods.\n",
-                     "Are you looking for any specific brand or type of product?\n")
+        responses = (
+            "We have a wide range of products including electronics, clothing, and home goods.",
+            "Are you looking for any specific brand or type of product?"
+        )
         return random.choice(responses)
 
     def deal_inquiry_intent(self):
-        responses = ("We have great deals on electronics and home appliances this week.\n",
-                     "You can find amazing discounts in our clearance section.\n",
-                     "Our members get exclusive deals and early access to sales.\n")
+        responses = (
+            "We have great deals on electronics and home appliances this week.",
+            "You can find amazing discounts in our clearance section.",
+            "Our members get exclusive deals and early access to sales."
+        )
         return random.choice(responses)
 
     def payment_inquiry_intent(self):
-        responses = ("We accept all major credit cards, debit cards, and mobile payments.\n",
-                     "You can also use gift cards or store credit for your purchases.\n",
-                     "We offer flexible payment options including installment plans.\n")
+        responses = (
+            "We accept all major credit cards, debit cards, and mobile payments.",
+            "You can also use gift cards or store credit for your purchases.",
+            "We offer flexible payment options including installment plans."
+        )
         return random.choice(responses)
 
     def no_match_intent(self):
-        responses = ("Can you please provide more details?\n", "I'm here to help, tell me more!\n",
-                     "Interesting. Can you tell me more about what you need?\n",
-                     "I see. How can I assist you further?\n",
-                     "How do you feel about our current offers?\n")
+        responses = (
+            "Can you please provide more details?",
+            "I'm here to help, tell me more!",
+            "Interesting. Can you tell me more about what you need?",
+            "I see. How can I assist you further?",
+            "How do you feel about our current offers?"
+        )
         return random.choice(responses)
 
 
+# Running the bot
 bot = RuleBot()
 bot.greet()
